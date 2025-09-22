@@ -4,7 +4,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Wimdevgroup\\PersonizerPhp\\": "src/"
+            "wimdevgroup\\PersonizerPhp\\": "src/"
         }
     },
     "authors": [
@@ -14,5 +14,12 @@
         }
     ],
     "minimum-stability": "stable",
-    "require": {}
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    },
+    "description": "PHP client library for Personizer calendar API to fetch and filter calendar events from ICS feeds",
+    "keywords": ["calendar", "ics", "personizer", "events", "php"]
 }
