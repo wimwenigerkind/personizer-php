@@ -1,0 +1,18 @@
+{
+    "name": "wimdevgroup/personizer-php",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Wimdevgroup\\PersonizerPhp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Wim Wenigerkind",
+            "email": "wim.wenigerkind@heptacom.de"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
