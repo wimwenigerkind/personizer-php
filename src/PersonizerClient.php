@@ -16,10 +16,10 @@ class PersonizerClient
     private string $calId;
     private DateTimeZone $timezone;
 
-    public function __construct(string $calId)
+    public function __construct(string $calId, ?string $timezone = null)
     {
         $this->calId = $calId;
-        $this->timezone = new DateTimeZone(self::TIMEZONE);
+        $this->timezone = new DateTimeZone($timezone ?? self::TIMEZONE);
     }
 
     /**
@@ -97,6 +97,12 @@ class PersonizerClient
     {
         $startDateTime = $this->parseDateTime($eventData['DTSTART']);
         $endDateTime = isset($eventData['DTEND']) ? $this->parseDateTime($eventData['DTEND']) : null;
+
+        if ($endDateTime !== null &&
+            strlen($eventData['DTSTART']) === 8 &&
+            strlen($eventData['DTEND']) === 8) {
+            $endDateTime->modify('-1 day');
+        }
 
         return [
             'title' => $eventData['SUMMARY'] ?? '',
