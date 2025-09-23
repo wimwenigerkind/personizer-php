@@ -5,12 +5,13 @@ namespace wimdevgroup\PersonizerPhp;
 use DateMalformedStringException;
 use DateTime;
 use DateTimeZone;
+use Exception;
 use InvalidArgumentException;
 
 class PersonizerClient
 {
-    private const string ICS_URL = "https://www.personizer.com/ical/";
-    private const string TIMEZONE = "Europe/Berlin";
+    private const ICS_URL = "https://www.personizer.com/ical/";
+    private const TIMEZONE = "Europe/Berlin";
 
     private string $calId;
     private DateTimeZone $timezone;
@@ -21,6 +22,9 @@ class PersonizerClient
         $this->timezone = new DateTimeZone(self::TIMEZONE);
     }
 
+    /**
+     * @throws DateMalformedStringException
+     */
     public function getEvents(array $options = []): array
     {
         $defaultOptions = [
@@ -100,7 +104,8 @@ class PersonizerClient
             'end' => $endDateTime?->format('c'),
             'description' => $eventData['DESCRIPTION'] ?? '',
             'location' => $eventData['LOCATION'] ?? '',
-            'start_datetime' => $startDateTime
+            'start_datetime' => $startDateTime,
+            'end_datetime' => $endDateTime
         ];
     }
 
@@ -131,6 +136,7 @@ class PersonizerClient
 
     /**
      * @throws DateMalformedStringException
+     * @throws Exception
      */
     private function filterEvents(array $events, array $options): array
     {
@@ -139,6 +145,7 @@ class PersonizerClient
 
         foreach ($events as $event) {
             $startDateTime = $event['start_datetime'];
+            $endDateTime = $event['end_datetime'];
 
             if ($options['today']) {
                 $todayStart = clone $now;
@@ -146,12 +153,16 @@ class PersonizerClient
                 $todayEnd = clone $todayStart;
                 $todayEnd->modify('+1 day');
 
-                if ($startDateTime < $todayStart || $startDateTime >= $todayEnd) {
+                $eventEndTime = $endDateTime ?? $startDateTime;
+                if ($startDateTime >= $todayEnd || $eventEndTime < $todayStart) {
                     continue;
                 }
             }
-            elseif ($options['future_only'] && $startDateTime < $now) {
-                continue;
+            elseif ($options['future_only']) {
+                $eventEndTime = $endDateTime ?? $startDateTime;
+                if ($eventEndTime < $now) {
+                    continue;
+                }
             }
 
             if ($options['days_ahead'] !== null) {
@@ -167,7 +178,7 @@ class PersonizerClient
                 continue;
             }
 
-            unset($event['start_datetime']);
+            unset($event['start_datetime'], $event['end_datetime']);
             $filteredEvents[] = $event;
         }
 
